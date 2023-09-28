@@ -1,19 +1,9 @@
 import socket
 
-# server_address = '0.0.0.0'
-# server_port = 9001
-# print('starting up on port {}'.format(server_port))
 
-# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# # ソケットを特殊なアドレス0.0.0.0とポート9001に紐付け
-# sock.bind((server_address, server_port))
-# print("UDP server start up on {}".format(server_port))
-
-
-client_list = set()
-
-class Server:
+class Server: 
+    client_list = set()
+    
     def __init__(self, address, port, buffer=4096) -> None:
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__address = address
@@ -29,15 +19,26 @@ class Server:
     def recvAndSend(self):
         try:
             while True:
-                print("\nWaiting to recive message")
-                data, client_address = self.__socket.recvfrom(self.__buffer)
+                try:
+                    print("\nWaiting to recive message")
+                    data, client_address = self.__socket.recvfrom(self.__buffer)
+                    str_data = data.decode("utf-8")
+                    
+                    print("Recived {} bytes from {}".format(len(data), client_address))
+                    [userName, messagedata] = str_data.split(":")
+                    Server.client_list.add(client_address)
+                    
+                    if data:
+                        print(Server.client_list)
+                        for c_address in Server.client_list:
+                            # print("address: ",c_address)
+                            sent = self.__socket.sendto(data, c_address)      
+                            print('Sent {} bytes back to {}'.format(sent, c_address))
                 
-                print("Recived {} bytes from {}".format(len(data), client_address))
-                print(data)
+                except KeyboardInterrupt:
+                    print("\n KeyBoardInterrupted!")
+                    break
                 
-                if data:
-                    sent = self.__socket.sendto(data, client_address)      
-                    print('Sent {} bytes back to {}'.format(sent, client_address))  
         finally:
             self.close()
     
@@ -49,7 +50,7 @@ class Server:
     
     
 def main():    
-    address = "0.0.0.0"
+    address = '0.0.0.0'
     port = 9001
     server = Server(address, port)
     server.start()
