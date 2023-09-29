@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 
 class Client:
     def __init__(self, username, port, address="0.0.0.0", buffer=4096) -> None:
@@ -10,6 +11,8 @@ class Client:
         self.__address = address
         self.__port = int(port)
         self.__buffer = buffer
+        self.__lastSenttime = time.time()
+        self.__connection = True
     
     def start(self):
         print("Starting up on {} ".format(self.__serverPort))
@@ -17,12 +20,16 @@ class Client:
         self.__socket.bind((self.__address, self.__port))
         thread_send = threading.Thread(target=self.send)
         thread_recive = threading.Thread(target = self.recive)
+        thread_checkConnectiontime = threading.Thread(target=self.checkTime)
 
         try:
-            thread_recive.start()
-            thread_send.start()
-            thread_send.join()
-            thread_recive.join()
+            while self.__connection:
+                thread_checkConnectiontime.start()
+                thread_recive.start()
+                thread_send.start()
+                thread_checkConnectiontime.join()
+                thread_send.join()
+                thread_recive.join()
             
         except KeyboardInterrupt as e:
             print("keyboardInterrrupt called!" + str(e))
@@ -31,7 +38,7 @@ class Client:
             self.close()    
         
     def send(self):
-        while True:
+        while self.__connection:
             try:
                 message = input("Input your message which you wanna send ? : ")
                 if message == "exit":
@@ -46,24 +53,49 @@ class Client:
                 # サーバーへデータを送信
                 sent = self.__socket.sendto(bMessage,(self.__serverAddress, self.__serverPort))
                 print('send {} bytes'.format(sent))
+                self.__lastSenttime = time.time()
+                print(self.__lastSenttime)
             
             except KeyboardInterrupt as e:
                 print("keyboardInterrrupt called!" + str(e))
                 break
+            finally:
+                self.close()
+            
     
     def recive(self):
-        # 応答を受信
         try:
-            while True:
+            while self.__connection:
                 print("Waiting to recive....")
                 data, server = self.__socket.recvfrom(self.__buffer)
                 print("Recived {!r}".format(data))
+            print("接続が切れました。")
         except KeyboardInterrupt as e:
             print("keyboard interuppted !!!", str(e))
-                
+        except OSError as e:
+            print("OS Error ! " + str(e))
+        finally:
+            self.close()
+        
+    
+    def checkTime(self):
+        try:    
+            while True:
+                currenttime = time.time()
+                if currenttime - self.__lastSenttime  > 600:
+                    self.__connection = False
+                    break
+                time.sleep(1)
+        except TimeoutError as e:
+            print("セッション有効期限が切れました。")
+            print(e)
+        finally:
+            self.close()
             
+        
     def close(self):
         print("Closing socket")
+        self.__socket.close()
         
 
 def main():
@@ -72,6 +104,6 @@ def main():
     username = input("Input your userName : ")
     client = Client(username, port)
     client.start()
-     
+    
 if __name__ == "__main__":
     main()
