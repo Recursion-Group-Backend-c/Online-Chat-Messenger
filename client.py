@@ -34,13 +34,16 @@ class Client:
         except KeyboardInterrupt as e:
             print("keyboardInterrrupt called!" + str(e))
             
+        except OSError as e:
+            print("OS Error ! " + str(e))
+            
         finally:
             self.close()    
         
     def send(self):
         while self.__connection:
             try:
-                message = input("Input your message which you wanna send ? : ")
+                message = input("Input message your messsage : ")
                 if message == "exit":
                     break
                 
