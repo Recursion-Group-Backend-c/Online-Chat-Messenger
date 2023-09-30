@@ -4,10 +4,15 @@ import queue
 from datetime import datetime, timedelta
 from typing import TypedDict
 
+
+class Client(TypedDict):
+    addr: str
+    timer: datetime
+
+
 messages: queue.Queue = queue.Queue()
-# need type
-messageTimer = TypedDict('messageTimer', {'addr': str, 'time': datetime})
-clients: messageTimer = {}
+
+clients: Client = {}
 
 server: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind(("localhost", 8080))
