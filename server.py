@@ -43,6 +43,7 @@ class TokenDict(TypedDict):
 messages: queue.Queue = queue.Queue()
 
 clients: ClientDict = {}
+tokenDict: TokenDict = {}
 
 server: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server.bind(("localhost", 8080))
@@ -66,8 +67,15 @@ def broadcast():
             print(message.decode())
             if addr not in clients:
                 clients[addr] = datetime.now() + timedelta(minutes=10)
+                '''
+                randToken: uuid4 = uuid.uuid4()
+                tokenDict[addr] = randToken
+                TEMPClientObj.token = randToken
+                del randToken
+                '''
             for client in list(clients.keys()):
                 try:
+                    # if Room.clientList[client].token == tokenDict[client]
                     if datetime.now() > clients[client]:
                         server.sendto(b'session timedout, start over the program to connect again', client)
                         del clients[client]
