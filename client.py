@@ -1,6 +1,8 @@
 import socket
 import threading
 import random
+import uuid
+import struct
 
 # need type
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -14,7 +16,7 @@ def receive() -> None:
     while True:
         try:
             # need type
-            message, _ = client.recvfrom(4096)
+            message, _ = client.recvfrom(4094)
             print(message.decode())
         except:
             pass
@@ -24,7 +26,11 @@ def receive() -> None:
 t = threading.Thread(target=receive)
 t.start()
 
-client.sendto(f"Nickname:{name}".encode(), ("localhost", 8080))
+# TEMP
+# udp header packaged with struct
+udpHeader: struct = struct.pack("!BB", RoomNameSize, TokenSize)
+
+client.sendto(udpHeader.encode() + f"Nickname:{name}".encode(), ("localhost", 8080))
 
 while True:
     message: str = input("")
@@ -32,4 +38,4 @@ while True:
         # CI変更はないが、接続が切られるはず。
         exit()
     else:
-        client.sendto(f"{name}: {message}".encode(), ("localhost", 8080))
+        client.sendto(udpHeader.encode() + f"{name}: {message}".encode(), ("localhost", 8080))

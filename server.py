@@ -54,6 +54,9 @@ def receive():
         try:
             # need type
             message, addr = server.recvfrom(4096)
+            # [0] = RoomNameSize, [1] = TokenSize
+            udpHeader = message[:2]
+            message = message[2:]
             messages.put((message, addr))
         except:
             pass
@@ -88,6 +91,7 @@ def broadcast():
                         clients[client] = datetime.now() + timedelta(minutes=10)
                 except:
                     del clients[client]
+                    del tokenDict[client]
 
 
 # need type
