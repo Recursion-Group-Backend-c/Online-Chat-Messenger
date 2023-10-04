@@ -23,6 +23,7 @@ class Server:
                     print("\nWaiting to recive message")
                     data, client_address = self.__socket.recvfrom(self.__buffer)
                     str_data = data.decode("utf-8")
+                    print(str_data)
                     
                     print("Recived {} bytes from {}".format(len(data), client_address))
                     [userName, messagedata] = str_data.split(":")

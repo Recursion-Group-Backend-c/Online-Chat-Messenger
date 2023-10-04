@@ -25,10 +25,10 @@ class Client:
         try:
             while self.__connection:
                 thread_checkConnectiontime.start()
-                thread_recive.start()
                 thread_send.start()
-                thread_checkConnectiontime.join()
                 thread_send.join()
+                thread_checkConnectiontime.join()
+                thread_recive.start()
                 thread_recive.join()
             
         except KeyboardInterrupt as e:
@@ -54,16 +54,13 @@ class Client:
                 bMessage = bytes(self.__username + " : " + message, "utf-8")
                 
                 # サーバーへデータを送信
-                sent = self.__socket.sendto(bMessage,(self.__serverAddress, self.__serverPort))
+                sent = self.__socket.sendto(bMessage, (self.__serverAddress, self.__serverPort))
                 print('send {} bytes'.format(sent))
                 self.__lastSenttime = time.time()
-                print(self.__lastSenttime)
             
             except KeyboardInterrupt as e:
                 print("keyboardInterrrupt called!" + str(e))
                 break
-            finally:
-                self.close()
             
     
     def recive(self):
@@ -77,8 +74,8 @@ class Client:
             print("keyboard interuppted !!!", str(e))
         except OSError as e:
             print("OS Error ! " + str(e))
-        finally:
-            self.close()
+        # finally:
+        #     self.__socket.close()
         
     
     def checkTime(self):
@@ -93,6 +90,7 @@ class Client:
             print("セッション有効期限が切れました。")
             print(e)
         finally:
+            print("時間切れです。通信を終了します。")
             self.close()
             
         
