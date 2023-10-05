@@ -64,9 +64,7 @@ class UDPClient:
             except KeyboardInterrupt as e:
                 print("keyboardInterrrupt called!" + str(e))
                 break
-            # finally:
-            #     self.close()
-            
+      
     
     def recive(self):
         try:
@@ -79,15 +77,13 @@ class UDPClient:
             print("keyboard interuppted !!!", str(e))
         except OSError as e:
             print("OS Error ! " + str(e))
-        # finally:
-        #     self.close()
-        
+
     
     def checkTime(self):
         try:    
             while True:
                 currenttime = time.time()
-                if currenttime - self.__lastSenttime  > 600:
+                if currenttime - self.__lastSenttime > 600:
                     self.__connection = False
                     break
                 time.sleep(1)
@@ -107,7 +103,7 @@ class UDPClient:
 
 class TCPClient:
     def __init__(self, buffer=4096) -> None:
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__tcpsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__serverAddress = "0.0.0.0"
         self.__serverPort = 9001
         self.__buffer = buffer
@@ -120,35 +116,36 @@ class TCPClient:
         
     def connect(self):
         try:
-            self.__socket.connect((self.__serverAddress, self.__serverPort))
+            self.__tcpsocket.connect((self.__serverAddress, self.__serverPort))
         except socket.error as e:
             print("ソケットエラー", e)
             sys.exit(1)
             
     def send(self):
-        try:
-            operationFlag = True
-            while operationFlag:
-                operation = input("1: You want to make Room.\n2: You want to join ChatRoom\n")
-                operation = int(operation)
-                if operation ==1 or operation == 2:
-                    operationFlag = False
-                else:
-                    print("Input Proper Num")
-            state = ""
-            
-            if operation == 1:
-                state = 0
+        operationFlag = True
+        while operationFlag:
+            operation = input("1: You want to make Room.\n2: You want to join ChatRoom\n")
+            operation = int(operation)
+            if operation ==1 or operation == 2:
+                operationFlag = False
             else:
-                state = 9
-            
-            try:
+                print("Input Proper Num")
+        state = ""
+        
+        if operation == 1:
+            state = 0
+        else:
+            state = 9
+        
+        try:
+            while True:
+                
                 if operation == 1:
                     print("operation == 1")
                     # TCP接続確立後のヘッダー送信
                     password = "password"
                     header = self.chatroom_protocol(5, operation, state, "room1", password)
-                    self.__socket.send(header)
+                    self.__tcpsocket.send(header)
                     flagPass = True
                     
                     # while flagPass:
@@ -159,56 +156,53 @@ class TCPClient:
                     #     else:
                     #         print("Wrong password. please set password one more time")
                     
-                    response1 = self.__socket.recv(32)
+                    response1 = self.__tcpsocket.recv(32)
                     room_name_size, operation, state, room_name, status1 = self.get_server_response_of_header(response1)
                     print(room_name_size, operation, state, room_name, status1)
                     if state == 1:
                         print("リクエストの応答(1): サーバーから応答がありました。")
                         
-                    response2 = self.__socket.recv(32)
+                    response2 = self.__tcpsocket.recv(32)
                     room_name_size, operation, state, room_name, status2 = self.get_server_response_of_header(response2)
                     print(room_name_size, operation, state, room_name, status2)
                     if state == 2:
                         # roomName = input("input room name where you want to join : ")
                         header = self.chatroom_protocol(5, operation, state, "room1", "")
-                        self.__socket.send(header)
+                        self.__tcpsocket.send(header)
                         print("send!!")
                         print("リクエストの応答(2): 部屋が作成されました")
-                    response3 = self.__socket.recv(32)
+                    response3 = self.__tcpsocket.recv(32)
                     room_name_size, operation, state, room_name, status3 = self.get_server_response_of_header(response3)
                     print(room_name_size, operation, state, room_name, status3 )
+                    break
+                
                         
                 elif operation == 2:
                     # TCP接続確立後のヘッダー送信
                     password = ""
                     header = self.chatroom_protocol(0, operation, state, "", "")
-                    self.__socket.send(header)
+                    self.__tcpsocket.send(header)
                     
                     roomName = input("input Room Name you want to join in : ")
                     password = input("input Password : ")
                     
                     join_roomName_password = self.chatroom_protocol(5, operation, state, roomName, password)
-                    self.__socket.send(join_roomName_password)
+                    self.__tcpsocket.send(join_roomName_password)
                     
-                    response1 = self.__socket.recv(32)
+                    response1 = self.__tcpsocket.recv(32)
                     room_name_size, operation, state, room_name, status1 = self.get_server_response_of_header(response1)
                     print(room_name_size, operation, state, room_name, status1)
                     
-                    self.__socket.send(header)
+                    self.__tcpsocket.send(header)
                     flagPass = True
-                    
-                    
-                    pass
-                else:
-                    print("input 1 or 2")
-                
-                    
-            except TimeoutError:
-                print("Socket timeout, ending listning for serever messages")
-            
-        finally:
+                    break
             self.close()
+            # UDP通信開始
+            threading.Thread(target=UDPClient.send())
             
+        except TimeoutError:
+            print("Socket timeout, ending listning for serever messages")
+                
             
     def get_server_response_of_header(self, data):
         # data = connection.recv(32)
@@ -239,7 +233,6 @@ class TCPClient:
         self.__socket.close()
             
             
-
 def main():
     tcplient = TCPClient()
     tcplient.start()

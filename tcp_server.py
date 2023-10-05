@@ -2,27 +2,94 @@ import socket
 import random
 import string
 import threading
+import time
 
 
 class UserInfo:
-    def __init__(self, address, port, userName, isHost=False) -> None:
+    def __init__(self, udp_address, udp_port, userName, isHost=False) -> None:
         self.isHost = isHost
-        self.address = address
-        self.port = port
+        self.udp_address = udp_address
+        self.udp_port = udp_port
         self.userName = userName
         self.hadToken = False
-
+        self.lastActiveTime = time.time()
+    
 class ChatRoomInfo:
-    def __init__(self, roomMemberNum=10, roomName=None, roomPassword = None, accessToken=None,) -> None:
+    def __init__(self, roomMemberNum, roomName=None, roomPassword = None, accessToken=None,) -> None:
         self.maxroomMember = roomMemberNum
         self.roomName = roomName
         self.password = roomPassword
+        self.udp_address = "0.0.0.0"
+        self.udp_port = 9010
         self.accessToken = accessToken
-        self.roomMember = []        
+        self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.buffer = 4096
+        self.roomMember = []
+        self.lastActiveTime = time.time()
+        
+    def addMember(self, address, userName, isHost):
+        user = UserInfo(address[0], address[1], userName, isHost)
+        self.roomMember.append(user)
+    
+    def leaveRoom(self, client_address):
+        # IPアドレスで確認
+        for i in range(len(self.roomMember)):
+            if client_address[0] == self.roomMember[i].udp_address and client_address[1] == self.roomMember[i].udp_port:
+                self.roomMember.pop(i)
+                break
+        print("New member", self.roomMember)
+    
+    def removeAllUser(self):
+        pass
+    
+    # udpstart
+    def udpstart(self):
+        self.udp_socket.bind((self.udp_address, self.udp_port))
+        print("UDP server start up on {} port: {}".format(self.udp_address, self.udp_port))
+        self.udprecvAndSend()     
+    
+    def udprecvAndSend(self):
+        try:
+            while True:
+                try:
+                    data, client_address = self.udp_socket.recvfrom(self.buffer)
+                    latest_messagedTime = time.time()
+                    str_data = data.decode("utf-8")
+                    if data == "exit":
+                        self.leaveRoom(client_address)
+                    
+                    if latest_messagedTime - self.lastActiveTime > 600:
+                        # 部屋を削除する。
+                        self.roomMember.clear() 
+                    self.lastActiveTime = latest_messagedTime
+                    
+                    print("Recived {} bytes from {}".format(len(data), client_address))
+                    print(data)
+                    [userName, messagedata] = str_data.split(":")
+                    self.roomMember.append(client_address)
+                    
+                    if data:
+                        print(self.roomMember)
+                        for c_address in self.roomMember:
+                            sent = self.udp_socket.sendto(data, c_address)      
+                            print('Sent {} bytes back to {}'.format(sent, c_address))
+                
+                except KeyboardInterrupt:
+                    print("\n KeyBoardInterrupted!")
+                    break
+        finally:
+            self.udpclose()
+    
+    def udpclose(self):
+        print("Closing server")
+        self.udp_socket.close()
+        
+    def checkActive(self):
+        pass
     
 
+
 class Server:
-    client_list = set()
     def __init__(self, tcp_address:str, tcp_port:int, udp_address:int, udp_port:int, buffer:int=4096) -> None:
         self.__tcpsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__udpsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -33,49 +100,12 @@ class Server:
         self.__buffer = buffer
         self.__roomList = {
             # roomName: ChatRoomInfo()
-            "roomEx": ChatRoomInfo(4,"roomEx", "password"),
+            "roomEx": ChatRoomInfo(4, "roomEx", "password"),
             "room2": ChatRoomInfo(4, "room2", "password"),
             }
         
     def generateToken(selef, size = 10):
         return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(size))        
-
-    def udpstart(self):
-        self.__udpsocket.bind((self.__udpaddress, self.__udp_prot))
-        print("UDP server start up on {} port: {}".format(self.__udpaddress, self.__udp_prot))
-        self.udprecvAndSend()     
-    
-    def udprecvAndSend(self):
-        try:
-            while True:
-                try:
-                    # print("\nWaiting to recive message")
-                    data, client_address = self.__udpsocket.recvfrom(self.__buffer)
-                    str_data = data.decode("utf-8")
-                    
-                    print("Recived {} bytes from {}".format(len(data), client_address))
-                    print(data)
-                    [userName, messagedata] = str_data.split(":")
-                    Server.client_list.add(client_address)
-                    
-                    if data:
-                        print(Server.client_list)
-                        for c_address in Server.client_list:
-                            sent = self.__udpsocket.sendto(data, c_address)      
-                            print('Sent {} bytes back to {}'.format(sent, c_address))
-                
-                except KeyboardInterrupt:
-                    print("\n KeyBoardInterrupted!")
-                    break
-                
-        finally:
-            self.udpclose()
-    
-    def udpclose(self):
-        print("Closing server")
-        self.__udpsocket.close()
-    # UDP end
-
 
     # TCP start
     def tcp_connetcion_start(self):
