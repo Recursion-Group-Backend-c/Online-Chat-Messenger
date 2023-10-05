@@ -130,21 +130,21 @@ class TCPClient:
             operationFlag = True
             while operationFlag:
                 operation = input("1: You want to make Room.\n2: You want to join ChatRoom\n")
-                if int(operation) ==1 or int(operation) == 2:
+                operation = int(operation)
+                if operation ==1 or operation == 2:
                     operationFlag = False
                 else:
                     print("Input Proper Num")
-            operation = int(operation)
             state = ""
             
             if operation == 1:
-                state = 0    
-            
+                state = 0
             else:
                 state = 9
             
             try:
                 if operation == 1:
+                    print("operation == 1")
                     # TCP接続確立後のヘッダー送信
                     password = "password"
                     header = self.chatroom_protocol(5, operation, state, "room1", password)
@@ -174,11 +174,14 @@ class TCPClient:
                         self.__socket.send(header)
                         print("send!!")
                         print("リクエストの応答(2): 部屋が作成されました")
+                    response3 = self.__socket.recv(32)
+                    room_name_size, operation, state, room_name, status3 = self.get_server_response_of_header(response3)
+                    print(room_name_size, operation, state, room_name, status3 )
                         
                 elif operation == 2:
                     # TCP接続確立後のヘッダー送信
                     password = ""
-                    header = self.chatroom_protocol(5, operation, state, "", "")
+                    header = self.chatroom_protocol(0, operation, state, "", "")
                     self.__socket.send(header)
                     
                     roomName = input("input Room Name you want to join in : ")
