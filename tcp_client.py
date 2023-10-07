@@ -21,8 +21,9 @@ class tcp_client:
         self.__user_name: str = ""
         
 
-    def is_valid_str_len(self,num) -> bool:
-        return len(self.__room_name) <= num
+    def is_valid_str_len(self,input,num) -> bool:
+        l: int = len(input)
+        return  0 < l and l <= num
 
     def is_valid_password(self) -> bool:
         return self.__password.find(" ") == -1 and \
