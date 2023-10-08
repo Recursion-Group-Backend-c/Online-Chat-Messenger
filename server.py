@@ -22,7 +22,6 @@ def receive():
         except:
             pass
 
-
 def broadcast():
     while True:
         while not messages.empty():
