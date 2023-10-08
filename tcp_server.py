@@ -39,55 +39,7 @@ class ChatRoomInfo:
                 self.roomMember.pop(i)
                 break
         print("New member", self.roomMember)
-    
-    def removeAllUser(self):
-        pass
-    
-    # udpstart
-    def udpstart(self):
-        self.udp_socket.bind((self.udp_address, self.udp_port))
-        print("UDP server start up on {} port: {}".format(self.udp_address, self.udp_port))
-        self.udprecvAndSend()     
-    
-    def udprecvAndSend(self):
-        try:
-            while True:
-                try:
-                    data, client_address = self.udp_socket.recvfrom(self.buffer)
-                    latest_messagedTime = time.time()
-                    str_data = data.decode("utf-8")
-                    if data == "exit":
-                        self.leaveRoom(client_address)
-                    
-                    if latest_messagedTime - self.lastActiveTime > 600:
-                        # 部屋を削除する。
-                        self.roomMember.clear() 
-                    self.lastActiveTime = latest_messagedTime
-                    
-                    print("Recived {} bytes from {}".format(len(data), client_address))
-                    print(data)
-                    [userName, messagedata] = str_data.split(":")
-                    self.roomMember.append(client_address)
-                    
-                    if data:
-                        print(self.roomMember)
-                        for c_address in self.roomMember:
-                            sent = self.udp_socket.sendto(data, c_address)      
-                            print('Sent {} bytes back to {}'.format(sent, c_address))
-                
-                except KeyboardInterrupt:
-                    print("\n KeyBoardInterrupted!")
-                    break
-        finally:
-            self.udpclose()
-    
-    def udpclose(self):
-        print("Closing server")
-        self.udp_socket.close()
-        
-    def checkActive(self):
-        pass
-    
+            
 
 
 class Server:
