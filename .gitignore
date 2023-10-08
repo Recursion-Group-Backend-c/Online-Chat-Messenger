@@ -1,7 +1,4 @@
-main.py
 client.py
 server.py
-new_client.py
-protocol.py
 tcp_client.py
-__pycache__
+__pycache__/
