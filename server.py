@@ -253,6 +253,7 @@ class udp_server:
         self.set_sock_bind()
 
         try:
+
             while True:
                 send_data: bytes = self.receive()
 
