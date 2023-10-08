@@ -139,7 +139,6 @@ class TCPClient:
         
         try:
             while True:
-                
                 if operation == 1:
                     print("operation == 1")
                     # TCP接続確立後のヘッダー送信
