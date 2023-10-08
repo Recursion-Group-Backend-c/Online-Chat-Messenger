@@ -25,6 +25,7 @@ TCPとUDPの役割は下記になります。
   ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/09958ce5-7c35-46d3-bbd5-e8573ece3eb6)
 
 - パターン図
+  
   "取りうるパターン"のクライアントとサーバ間のイメージは下記のようになります
   ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/dbdbb58f-ccab-432b-b56c-a13d189f12c7)
 
@@ -52,15 +53,15 @@ TCPとUDPの役割は下記になります。
 
 - リレーシステム削除
 
-  リレーシステムから削除されるパターンは2通りあり、下記イメージの灰色を削除する形になります。
+  リレーシステムから削除されるパターンは2通りあり、下記イメージの灰色を削除する形になります
 
   ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/68230232-8fd6-400a-883f-05cc453c912a)  
 
 - チャットルームの有効期間
   
-  チャットルームはホストが退出することにより自動的に閉じられます。
+  チャットルームはホストが退出することにより自動的に閉じられます
 
-  パターンは2通りあります。
+  パターンは2通りあります
 
   ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/f8eb2b56-6173-41ba-a1bb-29d606dbb446)
   
