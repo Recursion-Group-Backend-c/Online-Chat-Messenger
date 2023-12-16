@@ -296,7 +296,7 @@ python3 client.py
 TCPは、新規チャットルームの作成または既存のチャットルームの参加という機能に利用しています。
 
 #### headerについて
-クライアントとサーバ間では、下記バイト表のような、TCPR(カスタムプロトコル)を送受信して共有しています。
+クライアントとサーバ間では、下記バイト表のような、TCPR(カスタムプロトコル)を送受信してデータを共有しています。
 
 ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/4b4d1b4b-6f44-4cc9-b9e8-a5eb51ad23b6)
 
@@ -305,11 +305,13 @@ TCPは、新規チャットルームの作成または既存のチャットル�
 ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/5e64ee4f-0de0-4a62-b0d8-d4128ecf64f7)
 
 #### チャットルーム作成と参加で取りうるパターン
-クライアントとサーバ間で取りうるパターンは下記のようになります。
+チャットルーム作成と参加で取りうるパターンについて検討し、実装しました。
+
+クライアントとサーバ間では、下記のようなパターンが必要になります。
 
 ![image](https://github.com/Recursion-Group-Backend-c/Online-Chat-Messenger/assets/119317071/09958ce5-7c35-46d3-bbd5-e8573ece3eb6)
 
-取りうるパターンをもとに作成したパターン図は下記のようになります。
+取りうるパターンをもとにパターン図を作成しました。
 
 パターン図には、下記のような情報を記載しています。
 
