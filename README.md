@@ -151,7 +151,7 @@ python3 client.py
 | 用語 | 意味 |
 | ------- | ------- |
 | `Input user name(Up to 10 characters) :` | ユーザー名を入力して下さい。<br>文字数は、最大10文字までです。<br>入力例. user1 |
-| `Input operation(choose 1 or 2) :` | チャットルームを作成するか参加するか選択してください。<br>・1 : チャットルームを作成する<br>・2 : チャットムールに参加する<br>入力例. 1 |
+| `Input operation(choose 1 or 2) :` | チャットルームを作成するか参加するか選択してください。<br>・1 : チャットルームを作成する<br>・2 : チャットルームに参加する<br>入力例. 1 |
 | `Input room name(Up to 8 characters) :` room1 | チャットルーム名を入力してください。<br>文字数は、最大8文字までです。<br>入力例. room1 |
 | `Password conditions.`<br>`Must be between 6 and 11 characters and include the following characters.`<br>`・Uppercase letters`<br>`・Lowercase letters`<br>`・NumbersInput`<br>`Input password :`| パスワードを設定してください。<br>6~11文字で下記の文字を含めてください。<br>・アルファベットの大文字<br>・アルファベットの小文字<br>・数字<br>入力例. Abc123 |
 | `Input room name size (Range 0 to 255):` | チャットルームの最大人数を入力してください。<br>人数は、0~255人です。<br>入力例. 2 |
